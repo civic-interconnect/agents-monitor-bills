@@ -1,0 +1,33 @@
+name: Civic Interconnect Mapping Assistant Agent
+
+on:
+  schedule:
+    - cron: '50 4 * * *'  # Run daily at 4:50am UTC
+  workflow_dispatch:      # Allow manual triggering also
+  push:
+    branches:
+      - main
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.x'  
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip setuptools wheel --prefer-binary
+          pip install --upgrade -r requirements.txt --timeout 100
+
+      - name: Run agent
+        env:
+          OPENSTATES_API_KEY: ${{ secrets.OPENSTATES_API_KEY }}
+        run: |
+          python main.py

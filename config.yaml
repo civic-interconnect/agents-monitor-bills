@@ -1,0 +1,3 @@
+openstates_graphql_url: https://open.pluralpolicy.com/graphql
+storage_path: ./storage/
+report_path: ./reports/

@@ -1,0 +1,28 @@
+# ======================================================
+# ESSENTIAL EXTERNAL TOOLS
+# ======================================================
+
+# Up-to-date package management tools
+pip
+setuptools
+wheel
+
+# Easy logging for monitoring code execution
+loguru
+
+# HTTP client (REST + GraphQL)
+requests
+gql[aiohttp]
+aiohttp
+
+# Environment variables management
+python-dotenv
+
+# Git integration (used to clone repos)
+# GitPython
+
+# YAML parsing (used for config.yaml and report outputs)
+PyYAML
+
+# Data manipulation and analysis
+pandas
