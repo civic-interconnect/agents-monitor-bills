@@ -1,4 +1,4 @@
-name: Civic Interconnect Mapping Assistant Agent
+name: Monitor Bills Agent
 
 on:
   schedule:
@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - main
+
+permissions:
+  contents: write
 
 jobs:
   run-agent:
@@ -19,15 +22,28 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12.x'  
+          python-version: '3.12.x'
+
+      - name: Uninstall old civic-lib if exists
+        run: pip uninstall -y civic-lib civic_interconnect_lib || true
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip setuptools wheel --prefer-binary
-          pip install --upgrade -r requirements.txt --timeout 100
+          pip install --upgrade -r requirements.txt --timeout 100 --no-cache-dir
 
       - name: Run agent
         env:
           OPENSTATES_API_KEY: ${{ secrets.OPENSTATES_API_KEY }}
         run: |
           python main.py
+
+      - name: Commit daily report
+        run: |
+          git config user.name "civic-interconnect[bot]"
+          git config user.email "bot@civic-interconnect.org"
+          git add reports/
+          git commit -m "Daily report for $(date -u +'%Y-%m-%d')" || echo "No changes to commit"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

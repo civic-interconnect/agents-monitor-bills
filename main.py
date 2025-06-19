@@ -4,60 +4,64 @@ main.py - Civic Interconnect Bill Monitor Agent
 Monitors OpenStates bill activity by jurisdiction daily.
 """
 
-import os
-import yaml
-from datetime import datetime, timezone
+import sys
+from pathlib import Path
 from dotenv import load_dotenv
+
+from civic_lib import log_utils, config_utils
+from civic_lib.path_utils import ensure_dir
+from civic_lib.yaml_utils import write_yaml
+from civic_lib.date_utils import today_utc_str
+
 from parsers import openstates_bill_parser
-from loguru import logger
 
-# Initialize logger
-os.makedirs("logs", exist_ok=True)
-logger.add("logs/{time:YYYY-MM-DD}.log", rotation="1 day", retention="7 days", level="INFO")
+log_utils.init_logger()
+logger = log_utils.logger
 
-logger.info("===== Starting Bill Monitor Agent =====")
 
-# Load environment variables
-load_dotenv()
+def main():
+    """
+    Main function to run the agent.
+    Expected config.yaml keys:
+    - report_path
+    - openstates_graphql_url
+    """
+    logger.info("===== Starting Monitor Bills Agent =====")
+    load_dotenv()
 
-# Load API key
-openstates_api_key = os.getenv("OPENSTATES_API_KEY")
-if not openstates_api_key:
-    logger.error("OpenStates API key missing in environment!")
-    exit(1)
+    ROOT_DIR = Path(__file__).resolve().parent
+    config = config_utils.load_yaml_config("config.yaml", root_dir=ROOT_DIR)
+    version = config_utils.load_version("VERSION", root_dir=ROOT_DIR)
+    api_key = config_utils.load_openstates_api_key()
 
-# Load config
-with open("config.yaml", "r") as f:
-    config = yaml.safe_load(f)
+    today = today_utc_str()
+    logger.info(f"Polling date: {today}")
 
-# Load version
-with open("VERSION") as f:
-    version = f.read().strip()
-logger.info(f"Agent version: {version}")
+    report_path = ensure_dir(Path(config["report_path"]) / today)
+    logger.info(f"Report path: {report_path}")
 
-# Today's timestamp
-today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    try:
+        summary = openstates_bill_parser.run(report_path, config, api_key)
+    except Exception as e:
+        logger.error(f"Failed OpenStates query: {e}")
+        summary = []
 
-# Create storage paths
-os.makedirs("reports", exist_ok=True)
-report_path = os.path.join("reports", f"{today}-bill-monitor.yaml")
+    report = {
+        "date": today,
+        "version": version,
+        "total_jurisdictions": len(summary),
+        "jurisdictions": summary,
+    }
 
-# Query OpenStates
-try:
-    summary = openstates_bill_parser.run(".", config, openstates_api_key)
-except Exception as e:
-    logger.error(f"Failed OpenStates query: {e}")
-    summary = []
+    report_file = report_path / f"{today}-bills-report.yaml"
+    write_yaml(report, report_file)
+    logger.info(f"Report created: {report_file}")
 
-# Build daily report
-report = {
-    "date": today,
-    "total_jurisdictions": len(summary),
-    "jurisdictions": summary
-}
 
-# Write report
-with open(report_path, "w") as f:
-    yaml.dump(report, f, sort_keys=False)
-
-logger.info(f"Report written: {report_path}")
+if __name__ == "__main__":
+    try:
+        main()
+        sys.exit(0)
+    except Exception as e:
+        logger.exception(f"Agent failed unexpectedly. {e}")
+        sys.exit(1)

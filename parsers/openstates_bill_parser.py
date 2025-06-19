@@ -2,14 +2,16 @@
 parsers/openstates_bill_parser.py
 
 Queries OpenStates GraphQL for basic bill counts.
+
+MIT License — Civic Interconnect
 """
 
-import asyncio
 import pandas as pd
-from gql import gql, Client
-from gql.transport.aiohttp import AIOHTTPTransport
-from gql.transport.exceptions import TransportServerError, TransportQueryError, TransportProtocolError
-from loguru import logger
+from gql import gql
+
+from civic_lib import log_utils, api_utils, error_utils
+
+logger = log_utils.logger
 
 BILL_QUERY = gql("""
 query BillSummary($first: Int, $after: String) {
@@ -28,61 +30,46 @@ query BillSummary($first: Int, $after: String) {
 }
 """)
 
-async def fetch_bills(api_key, config):
-    url = config["openstates_graphql_url"]
-    headers = {"Authorization": f"Bearer {api_key}"}
-
-    transport = AIOHTTPTransport(url=url, headers=headers, ssl=True)
-    client = Client(transport=transport, fetch_schema_from_transport=False)
-
-    bills = []
-    after = None
-
-    while True:
-        variables = {"first": 100, "after": after}
-        response = await client.execute_async(BILL_QUERY, variable_values=variables)
-        edges = response["bills"]["edges"]
-        for edge in edges:
-            bill = edge["node"]
-            bills.append({
-                "id": bill["id"],
-                "jurisdiction": bill["jurisdiction"]["name"]
-            })
-        page = response["bills"]["pageInfo"]
-        if not page["hasNextPage"]:
-            break
-        after = page["endCursor"]
-
-    logger.info(f"Fetched {len(bills)} bills total")
-    return pd.DataFrame(bills)
 
 def run(storage_path, config, api_key):
-    logger.info("Pulling OpenStates bill summary...")
+    """
+    Query OpenStates for all bills and return counts by jurisdiction.
+
+    Args:
+        storage_path (Path or str): Path where output can be written (not used here, but kept for symmetry).
+        config (dict): Configuration dictionary with at least 'openstates_graphql_url'.
+        api_key (str): API key for authenticating the request.
+
+    Returns:
+        list of dict: [{'jurisdiction': 'X', 'bill_count': N}, ...] or error message string
+    """
+    logger.info("Starting OpenStates bill monitoring...")
 
     try:
-        df = asyncio.run(fetch_bills(api_key, config))
+        response = api_utils.paged_query(
+            url=config["openstates_graphql_url"],
+            api_key=api_key,
+            query=BILL_QUERY,
+            data_path=["bills", "edges"],
+        )
 
-        grouped = df.groupby("jurisdiction").size().reset_index(name="bill_count")
-        summary = grouped.to_dict(orient="records")
-        logger.info(f"Summary: {summary}")
+        bills = [
+            {
+                "id": edge["node"]["id"],
+                "jurisdiction": edge["node"]["jurisdiction"]["name"],
+            }
+            for edge in response
+        ]
+
+        df = pd.DataFrame(bills)
+        summary_df = df.groupby("jurisdiction").size().reset_index(name="bill_count")
+        summary = summary_df.to_dict(orient="records")
+
+        logger.info(f"Bill summary completed with {len(summary)} jurisdictions.")
         return summary
 
-    except TransportServerError as e:
-        if "403" in str(e):
-            logger.warning("OpenStates bill access not yet enabled (received 403 Forbidden).")
-            return "Bill data access not yet granted"
-        else:
-            logger.error(f"Server error: {e}")
-            raise
-
-    except TransportQueryError as e:
-        logger.error(f"GraphQL query error: {e}")
-        raise
-
-    except TransportProtocolError as e:
-        logger.error(f"Transport protocol error: {e}")
-        raise
-
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise
+        logger.error(f"Error during OpenStates bill pull: {str(e)}")
+        return error_utils.handle_transport_errors(
+            e, resource_name="OpenStates Bill Monitor"
+        )

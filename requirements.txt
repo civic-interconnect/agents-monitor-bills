@@ -7,22 +7,20 @@ pip
 setuptools
 wheel
 
-# Easy logging for monitoring code execution
-loguru
-
-# HTTP client (REST + GraphQL)
-requests
-gql[aiohttp]
-aiohttp
-
 # Environment variables management
 python-dotenv
 
-# Git integration (used to clone repos)
-# GitPython
-
-# YAML parsing (used for config.yaml and report outputs)
+# YAML parsing
 PyYAML
 
-# Data manipulation and analysis
+# Civic Interconnect library
+-e git+https://github.com/civic-interconnect/civic-interconnect-lib.git@main#egg=civic-lib
+
+# Git integration (used to clone repos)
+GitPython
+
+# GraphQL client with asyncio transport (used for OpenStates schema pulls)
+gql[aiohttp]
+
+# Data processing and analysis
 pandas
