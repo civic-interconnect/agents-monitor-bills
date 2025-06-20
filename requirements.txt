@@ -14,7 +14,7 @@ python-dotenv
 PyYAML
 
 # Civic Interconnect library
--e git+https://github.com/civic-interconnect/civic-interconnect-lib.git@main#egg=civic-lib
+-e git+https://github.com/civic-interconnect/civic-lib-core.git@main#egg=civic-lib-core
 
 # Git integration (used to clone repos)
 GitPython

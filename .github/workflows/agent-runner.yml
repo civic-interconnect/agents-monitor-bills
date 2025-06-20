@@ -24,8 +24,8 @@ jobs:
         with:
           python-version: '3.12.x'
 
-      - name: Uninstall old civic-lib if exists
-        run: pip uninstall -y civic-lib civic_interconnect_lib || true
+      - name: Uninstall old civic-lib-core if exists
+        run: pip uninstall -y civic-lib-core civic_interconnect_lib || true
 
       - name: Install dependencies
         run: |

@@ -8,10 +8,10 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
-from civic_lib import log_utils, config_utils
-from civic_lib.path_utils import ensure_dir
-from civic_lib.yaml_utils import write_yaml
-from civic_lib.date_utils import today_utc_str
+from civic_lib_core import log_utils, config_utils
+from civic_lib_core.path_utils import ensure_dir
+from civic_lib_core.yaml_utils import write_yaml
+from civic_lib_core.date_utils import today_utc_str
 
 from parsers import openstates_bill_parser
 
