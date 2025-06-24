@@ -23,6 +23,6 @@ After verifying changes:
 
 ```powershell
 civic-dev prep-code
-civic-dev bump-version 0.2.1 0.2.2
+civic-dev bump-version 0.2.2 0.2.3
 civic-dev release
 ```

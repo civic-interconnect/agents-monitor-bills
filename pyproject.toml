@@ -1,6 +1,6 @@
 [project]
 name = "agents-monitor-bills"
-version = "0.2.2"
+version = "0.2.3"
 description = "Civic Interconnect Bill Monitoring Agent"
 authors = [
     { name="Civic Interconnect", email="info@civic-interconnect.org" }
@@ -46,7 +46,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["agents_monitor_bills"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.ruff]
 line-length = 100
