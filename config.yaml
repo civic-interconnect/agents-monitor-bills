@@ -1,3 +1,4 @@
+log_level: info  # Options: debug, info, warning, error, critical
 openstates_graphql_url: https://open.pluralpolicy.com/graphql
 storage_path: ./storage/
 report_path: ./reports/

@@ -4,19 +4,17 @@ main.py - Civic Interconnect Bill Monitor Agent
 Monitors OpenStates bill activity by jurisdiction daily.
 """
 
+import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
 
-from civic_lib_core import log_utils, config_utils
+from civic_lib_core import config_utils, log_utils
+from civic_lib_core.date_utils import today_utc_str
 from civic_lib_core.path_utils import ensure_dir
 from civic_lib_core.yaml_utils import write_yaml
-from civic_lib_core.date_utils import today_utc_str
+from dotenv import load_dotenv
 
-from parsers import openstates_bill_parser
-
-log_utils.init_logger()
-logger = log_utils.logger
+from agents_monitor_bills.parsers import openstates_bill_parser
 
 
 def main():
@@ -26,13 +24,17 @@ def main():
     - report_path
     - openstates_graphql_url
     """
+    log_utils.init_logger()
+    logger = log_utils.logger
+
     logger.info("===== Starting Monitor Bills Agent =====")
     load_dotenv()
 
-    ROOT_DIR = Path(__file__).resolve().parent
-    config = config_utils.load_yaml_config("config.yaml", root_dir=ROOT_DIR)
-    version = config_utils.load_version("VERSION", root_dir=ROOT_DIR)
-    api_key = config_utils.load_openstates_api_key()
+    root_dir = Path(__file__).resolve().parents[2]
+    logger.info(f"Root directory: {root_dir}")
+    config = config_utils.load_yaml_config("config.yaml", root_dir=root_dir)
+    version = config_utils.load_version("VERSION", root_dir=root_dir)
+    api_key = os.getenv("OPENSTATES_API_KEY")
 
     today = today_utc_str()
     logger.info(f"Polling date: {today}")
@@ -62,6 +64,5 @@ if __name__ == "__main__":
     try:
         main()
         sys.exit(0)
-    except Exception as e:
-        logger.exception(f"Agent failed unexpectedly. {e}")
+    except Exception:
         sys.exit(1)

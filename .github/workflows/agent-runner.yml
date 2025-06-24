@@ -30,13 +30,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip setuptools wheel --prefer-binary
-          pip install --upgrade -r requirements.txt --timeout 100 --no-cache-dir
+          pip install .[dev]
 
       - name: Run agent
         env:
           OPENSTATES_API_KEY: ${{ secrets.OPENSTATES_API_KEY }}
         run: |
-          python main.py
+          bills-agent start
 
       - name: Commit daily report
         run: |

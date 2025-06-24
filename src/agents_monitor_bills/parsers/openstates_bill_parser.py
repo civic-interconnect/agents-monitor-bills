@@ -7,9 +7,8 @@ MIT License — Civic Interconnect
 """
 
 import pandas as pd
+from civic_lib_core import api_utils, error_utils, log_utils
 from gql import gql
-
-from civic_lib_core import log_utils, api_utils, error_utils
 
 logger = log_utils.logger
 
@@ -69,6 +68,4 @@ def run(storage_path, config, api_key):
         return summary
 
     except Exception as e:
-        return error_utils.handle_transport_errors(
-            e, resource_name="OpenStates Bill Monitor"
-        )
+        return error_utils.handle_transport_errors(e, resource_name="OpenStates Bill Monitor")
