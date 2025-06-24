@@ -1,6 +1,6 @@
 [project]
 name = "agents-monitor-bills"
-version = "0.2.3"
+version = "0.2.4"
 description = "Civic Interconnect Bill Monitoring Agent"
 authors = [
     { name="Civic Interconnect", email="info@civic-interconnect.org" }

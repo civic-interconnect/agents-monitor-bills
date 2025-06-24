@@ -30,12 +30,10 @@ def main():
     logger.info("===== Starting Monitor Bills Agent =====")
     load_dotenv()
 
-    root_dir = Path(__file__).resolve().parents[2]
-    logger.info(f"Root directory: {root_dir}")
+    root_dir = Path.cwd()
     config = config_utils.load_yaml_config("config.yaml", root_dir=root_dir)
     version = config_utils.load_version("VERSION", root_dir=root_dir)
-    api_key = os.getenv("OPENSTATES_API_KEY")
-
+    api_key: str | None = os.getenv("OPENSTATES_API_KEY")
     today = today_utc_str()
     logger.info(f"Polling date: {today}")
 
