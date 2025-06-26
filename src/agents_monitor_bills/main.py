@@ -10,7 +10,7 @@ from pathlib import Path
 
 from civic_lib_core import config_utils, log_utils
 from civic_lib_core.date_utils import today_utc_str
-from civic_lib_core.path_utils import ensure_dir
+from civic_lib_core.fs_utils import ensure_dir
 from civic_lib_core.yaml_utils import write_yaml
 from dotenv import load_dotenv
 

@@ -1,6 +1,6 @@
 # agents-monitor-bills
 
-[![Version](https://img.shields.io/badge/version-v0.2.4-blue)](https://github.com/civic-interconnect/agents-monitor-bills/releases)
+[![Version](https://img.shields.io/badge/version-v0.2.5-blue)](https://github.com/civic-interconnect/agents-monitor-bills/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/civic-interconnect/agents-monitor-bills/actions/workflows/agent-runner.yml/badge.svg)](https://github.com/civic-interconnect/agents-monitor-bills/actions)
 

@@ -7,7 +7,7 @@ MIT License — Civic Interconnect
 """
 
 import pandas as pd
-from civic_lib_core import api_utils, error_utils, log_utils
+from civic_lib_core import graphql_utils, log_utils
 from gql import gql
 
 logger = log_utils.logger
@@ -45,7 +45,7 @@ def run(storage_path, config, api_key):
     logger.info("Starting OpenStates bill monitoring...")
 
     try:
-        response = api_utils.paged_query(
+        response = graphql_utils.paged_query(
             url=config["openstates_graphql_url"],
             api_key=api_key,
             query=BILL_QUERY,
@@ -68,4 +68,4 @@ def run(storage_path, config, api_key):
         return summary
 
     except Exception as e:
-        return error_utils.handle_transport_errors(e, resource_name="OpenStates Bill Monitor")
+        return graphql_utils.handle_transport_errors(e, resource_name="OpenStates Bill Monitor")

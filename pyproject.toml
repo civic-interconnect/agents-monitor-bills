@@ -1,13 +1,13 @@
 [project]
 name = "agents-monitor-bills"
-version = "0.2.4"
+version = "0.2.5"
 description = "Civic Interconnect Bill Monitoring Agent"
 authors = [
     { name="Civic Interconnect", email="info@civic-interconnect.org" }
 ]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 
 dependencies = [
     "python-dotenv",

@@ -29,8 +29,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip setuptools wheel --prefer-binary
-          pip install .[dev]
+          python -m pip install --upgrade pip setuptools wheel --prefer-binary
+          python -m pip install --upgrade .[dev]
 
       - name: Run agent
         env:
