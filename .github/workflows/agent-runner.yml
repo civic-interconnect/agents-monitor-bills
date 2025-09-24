@@ -2,7 +2,7 @@ name: Monitor Bills Agent
 
 on:
   schedule:
-    - cron: '50 4 * * *'  # Run daily at 4:50am UTC
+    - cron: '50 4 * * 0'  # Run weekly at 4:50am UTC on Sundays (0)
   workflow_dispatch:      # Allow manual triggering also
   push:
     branches:
